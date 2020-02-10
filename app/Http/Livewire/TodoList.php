@@ -49,6 +49,21 @@ class TodoList extends Component
     }
 
     /**
+     * Delete a todo.
+     *
+     * @param int $todoId
+     * @param int|null $countTodosOnCurrentPage
+     */
+    public function deleteTodo(int $todoId, ?int $countTodosOnCurrentPage): void
+    {
+        Todo::destroy($todoId);
+
+        if (! is_null($countTodosOnCurrentPage) && $countTodosOnCurrentPage == 1) {
+            $this->gotoPage($this->page - 1);
+        }
+    }
+
+    /**
      * Override the pagination view.
      *
      * @return string

@@ -69,6 +69,7 @@
             "@php artisan ide-helper:models -W"
         ],
         "format": "php-cs-fixer fix --path-mode=intersection --config=.php_cs ./",
-        "test": "phpunit --colors=always --stop-on-defect"
+        "test": "phpunit --colors=always --stop-on-defect",
+        "analyse": "phpstan analyse"
     }
 }

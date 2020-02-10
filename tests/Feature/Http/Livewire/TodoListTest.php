@@ -48,11 +48,11 @@ class TodoListTest extends TestCase
     {
         Livewire::test(TodoList::class)
             ->assertViewHas('todos', function ($todos) {
-                return $todos->count() == 0;
+                return $todos->total() == 0;
             })
             ->call('addTodo', 'New Todo')
             ->assertViewHas('todos', function ($todos) {
-                return $todos->count() == 1;
+                return $todos->total() == 1;
             })
             ->assertSee('New Todo')
             ->assertSee('wire:keydown.enter="addTodo');
@@ -107,7 +107,56 @@ class TodoListTest extends TestCase
             ->call('addTodo', 'New Todo', $currentPage, $todos->total())
             ->assertSet('page', $currentPage)
             ->assertViewHas('todos', function ($todos) use ($countTodos) {
-                return $todos->count() == $countTodos + 1;
+                return $todos->total() == $countTodos + 1;
+            });
+    }
+
+    public function test_can_delete_a_todo(): void
+    {
+        $todosCreated = factory(Todo::class, 5)->create();
+        $todoToDelete = $todosCreated->get(1);
+
+        Livewire::test(TodoList::class)
+            ->assertViewHas('todos', function ($todos) use ($todosCreated) {
+                return $todos->total() == $todosCreated->count();
+            })
+            ->call('deleteTodo', $todoToDelete->id)
+            ->assertViewHas('todos', function ($todos) use ($todosCreated) {
+                return $todos->total() == $todosCreated->count() - 1;
+            })
+            ->assertDontSee($todoToDelete->todo)
+            ->assertSee('wire:click="deleteTodo');
+
+        $this->assertEquals($todosCreated->count() - 1, Todo::all()->count());
+    }
+
+    public function test_go_to_previous_page_if_delete_last_todo_on_current_page(): void
+    {
+        $todosCreated = factory(Todo::class, 6)->create();
+        $todoToDelete = $todosCreated->get(3);
+        $currentPage = 2;
+
+        Livewire::test(TodoList::class)
+            ->set('page', $currentPage)
+            ->call('deleteTodo', $todoToDelete->id, 1)
+            ->assertSet('page', $currentPage - 1)
+            ->assertViewHas('todos', function ($todos) use ($todosCreated) {
+                return $todos->total() == $todosCreated->count() - 1;
+            });
+    }
+
+    public function test_stay_on_the_same_page_after_deleting_a_todo_if_items_still_present_on_the_current_page(): void
+    {
+        $todosCreated = factory(Todo::class, 7)->create();
+        $todoToDelete = $todosCreated->get(2);
+        $currentPage = 2;
+
+        Livewire::test(TodoList::class)
+            ->set('page', $currentPage)
+            ->call('deleteTodo', $todoToDelete->id, 2)
+            ->assertSet('page', $currentPage)
+            ->assertViewHas('todos', function ($todos) use ($todosCreated) {
+                return $todos->total() == $todosCreated->count() - 1;
             });
     }
 }

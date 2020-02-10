@@ -18,7 +18,7 @@
         <section id="main" class="relative">
             <ul id="todo-list" class="list-none">
                 @foreach ($todos as $todo)
-                    <li class="relative border-b border-indigo-600 last:border-b-0">
+                    <li x-data="{ showdestroy: false }" x-on:mouseover="showdestroy = true" x-on:mouseleave="showdestroy = false" class="relative border-b border-indigo-600 last:border-b-0">
                         <div class="flex flex-row items-stretch bg-white">
                             <div class="flex items-center bg-gray-100">
                                 <svg class="@if($todo->isCompleted()) text-green-500 @endif w-8 h-8 mx-4 cursor-pointer fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" >
@@ -27,6 +27,12 @@
                             </div>
 
                             <p class="@if($todo->isCompleted()) line-through @endif flex-1 pt-4 pb-4 pl-2 text-2xl font-normal text-gray-700 break-words border-l-2 border-indigo-600">{{ $todo->todo }}</p>
+                        
+                            <div class="flex items-center">
+                                <svg class="absolute right-0 w-8 h-8 mr-4 text-gray-800 transition duration-300 ease-out transform cursor-pointer fill-current hover:scale-125 hover:text-red-500" x-cloak x-show="showdestroy" wire:click="deleteTodo({{ $todo->id }}, {{ $todos->count() }})" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                    <path d="M14.348 14.849a1.2 1.2 0 01-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 11-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 111.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 111.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 010 1.698z"/>
+                                </svg>
+                            </div>
                         </div>
                     </li>
                 @endforeach
