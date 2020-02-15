@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -58,5 +59,31 @@ class Todo extends Model
     public function isCompleted(): bool
     {
         return $this->status == 'completed';
+    }
+
+    /**
+     * Scope a query to only include todos by status.
+     *
+     * @param Builder $query
+     * @param string $status
+     *
+     * @return Builder
+     */
+    public function scopeStatus(Builder $query, string $status)
+    {
+        return $query->where('status', $status);
+    }
+
+    /**
+     * Scope a query to only include todos without the status called on parameter.
+     *
+     * @param Builder $query
+     * @param string $status
+     *
+     * @return Builder
+     */
+    public function scopeStatusNot(Builder $query, string $status)
+    {
+        return $query->where('status', '!=', $status);
     }
 }

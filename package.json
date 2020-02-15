@@ -27,7 +27,7 @@
         "vue-template-compiler": "^2.6.11"
     },
     "dependencies": {
-        "alpinejs": "^1.9.7",
+        "alpinejs": "^1.11.1",
         "axios": "^0.19",
         "laravel-mix": "^5.0.1",
         "laravel-mix-purgecss": "^4.1",
