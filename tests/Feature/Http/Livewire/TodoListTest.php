@@ -142,7 +142,7 @@ class TodoListTest extends TestCase
     {
         factory(Todo::class, $this->paginationLimit + 1)->create();
         $todosCreated = Todo::paginate($this->paginationLimit);
-        $todoToDelete = $todosCreated->where('id', rand(1, $this->paginationLimit) + 1)->first();
+        $todoToDelete = $todosCreated->where('id', rand(1, $this->paginationLimit))->first();
         $currentPage = 2;
 
         Livewire::test(TodoList::class)
@@ -161,7 +161,7 @@ class TodoListTest extends TestCase
     {
         factory(Todo::class, $this->paginationLimit + 2)->create();
         $todosCreated = Todo::paginate($this->paginationLimit);
-        $todoToDelete = $todosCreated->where('id', rand(1, $this->paginationLimit) + 2)->first();
+        $todoToDelete = $todosCreated->where('id', rand(1, $this->paginationLimit) + 1)->first();
         $currentPage = 2;
 
         Livewire::test(TodoList::class)
