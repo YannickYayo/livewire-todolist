@@ -52,6 +52,11 @@
                 <li wire:click="$set('filter', 'completed')" class="cursor-pointer @if($filter == 'completed') font-bold @endif">
                     Completed
                 </li>
+                <li>
+                    <button wire:click="deleteCurrentCompletedTodos('{{ json_encode(collect($todos->items())->map->id->toArray()) }}', {{ $todos->hasMorePages() }})" class="@if(!$checkItemsOnCurrentPage) invisible @endif px-4 py-2 text-white bg-indigo-500 rounded-lg hover:bg-indigo-400">
+                        Clear completed
+                    </button>
+                </li>
             </ul>
         </section>
     </section>

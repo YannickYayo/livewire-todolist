@@ -32,6 +32,13 @@ class TodoList extends Component
     public $checkItemsOnCurrentPage;
 
     /**
+     * Queries string.
+     *
+     * @var array
+     */
+    protected $updatesQueryString = ['filter'];
+
+    /**
      * Render the component.
      *
      * @return View
@@ -55,7 +62,7 @@ class TodoList extends Component
     public function mount(): void
     {
         $this->checkItemsOnCurrentPage = false;
-        $this->filter = 'all';
+        $this->filter = request()->query('filter', $this->filter) ?? 'all';
     }
 
     /**
@@ -134,6 +141,16 @@ class TodoList extends Component
             ->update([
                 'status' => $this->checkItemsOnCurrentPage ? 'active' : 'completed',
             ]);
+    }
+
+    public function deleteCurrentCompletedTodos(string $todosIds, ?bool $hasMorePages): void
+    {
+        Todo::whereIn('id', json_decode($todosIds))
+            ->delete();
+
+        if ($this->page != 1 && ! $hasMorePages) {
+            $this->gotoPage($this->page - 1);
+        }
     }
 
     /**

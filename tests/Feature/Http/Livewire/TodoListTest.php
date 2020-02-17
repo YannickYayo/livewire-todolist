@@ -31,7 +31,7 @@ class TodoListTest extends TestCase
 
     public function test_can_see_todos(): void
     {
-        $this->getTodos($this->paginationLimit);
+        factory(Todo::class, $this->paginationLimit);
 
         $response = $this->get('/');
         $response->assertStatus(200);
@@ -41,7 +41,7 @@ class TodoListTest extends TestCase
 
     public function test_see_limit_todos_at_a_time_by_default(): void
     {
-        $this->getTodos($this->paginationLimit + 1);
+        factory(Todo::class, $this->paginationLimit + 1)->create();
 
         Livewire::test(TodoList::class)
             ->assertViewHas('todos', function ($todos) {
@@ -69,7 +69,8 @@ class TodoListTest extends TestCase
 
     public function test_show_the_last_page_after_adding_a_todo_when_a_new_page_is_created(): void
     {
-        $todos = $this->getTodos($this->paginationLimit, true);
+        factory(Todo::class, $this->paginationLimit)->create();
+        $todos = Todo::paginate($this->paginationLimit);
         $currentPage = 1;
 
         Livewire::test(TodoList::class)
@@ -85,7 +86,8 @@ class TodoListTest extends TestCase
     public function test_show_the_last_page_after_adding_a_todo_when_no_new_page_is_created(): void
     {
         $countTodos = 16;
-        $todos = $this->getTodos($countTodos, true);
+        factory(Todo::class, $countTodos)->create();
+        $todos = Todo::paginate($this->paginationLimit);
         $currentPage = 2;
         $lastPage = intval(ceil($countTodos / $this->paginationLimit));
 
@@ -102,7 +104,8 @@ class TodoListTest extends TestCase
     public function test_stay_on_the_same_page_after_adding_a_todo_when_number_of_items_is_under_limit(): void
     {
         $countTodos = 4;
-        $todos = $this->getTodos($countTodos, true);
+        factory(Todo::class, $countTodos)->create();
+        $todos = Todo::paginate($this->paginationLimit);
         $currentPage = 1;
 
         Livewire::test(TodoList::class)
@@ -117,7 +120,8 @@ class TodoListTest extends TestCase
 
     public function test_can_delete_a_todo(): void
     {
-        $todosCreated = $this->getTodos($this->paginationLimit);
+        factory(Todo::class, $this->paginationLimit)->create();
+        $todosCreated = Todo::paginate($this->paginationLimit);
         $todoToDelete = $todosCreated->where('id', rand(1, $this->paginationLimit))->first();
 
         Livewire::test(TodoList::class)
@@ -136,7 +140,8 @@ class TodoListTest extends TestCase
 
     public function test_go_to_previous_page_if_delete_last_todo_on_current_page(): void
     {
-        $todosCreated = $this->getTodos($this->paginationLimit + 1);
+        factory(Todo::class, $this->paginationLimit + 1)->create();
+        $todosCreated = Todo::paginate($this->paginationLimit);
         $todoToDelete = $todosCreated->where('id', rand(1, $this->paginationLimit) + 1)->first();
         $currentPage = 2;
 
@@ -145,16 +150,17 @@ class TodoListTest extends TestCase
             ->call('deleteTodo', $todoToDelete->id, 1)
             ->assertSet('page', $currentPage - 1)
             ->assertViewHas('todos', function ($todos) use ($todosCreated) {
-                return $todos->total() == $todosCreated->count() - 1;
+                return $todos->total() == $todosCreated->total() - 1;
             })
-            ->assertViewHas('todos', function ($todos) use ($todosCreated) {
+            ->assertViewHas('todos', function ($todos) {
                 return $todos->count() == $this->paginationLimit;
             });
     }
 
     public function test_stay_on_the_same_page_after_deleting_a_todo_if_items_still_present_on_the_current_page(): void
     {
-        $todosCreated = $this->getTodos($this->paginationLimit + 2);
+        factory(Todo::class, $this->paginationLimit + 2)->create();
+        $todosCreated = Todo::paginate($this->paginationLimit);
         $todoToDelete = $todosCreated->where('id', rand(1, $this->paginationLimit) + 2)->first();
         $currentPage = 2;
 
@@ -163,17 +169,19 @@ class TodoListTest extends TestCase
             ->call('deleteTodo', $todoToDelete->id, 2)
             ->assertSet('page', $currentPage)
             ->assertViewHas('todos', function ($todos) use ($todosCreated) {
-                return $todos->total() == $todosCreated->count() - 1;
+                return $todos->total() == $todosCreated->total() - 1;
             })
-            ->assertViewHas('todos', function ($todos) use ($todosCreated) {
+            ->assertViewHas('todos', function ($todos) {
                 return $todos->count() == 1;
             });
     }
 
     public function test_can_update_a_todo_status(): void
     {
-        $activeTodo = $this->getTodos(1, false, ['status' => 'active'])->first();
-        $completedTodo = $this->getTodos(1, false, ['status' => 'completed'])->first();
+        factory(Todo::class)->create(['status' => 'active']);
+        $activeTodo = Todo::status('active')->first();
+        factory(Todo::class)->create(['status' => 'completed']);
+        $completedTodo = Todo::status('completed')->first();
 
         Livewire::test(TodoList::class)
             ->call('updateTodoStatus', $activeTodo->id, $activeTodo->status)
@@ -196,7 +204,8 @@ class TodoListTest extends TestCase
 
     public function test_can_update_all_todos_status_on_current_page_to_completed(): void
     {
-        $activeTodos = $this->getTodos(6, true, ['status' => 'active']);
+        factory(Todo::class, $this->paginationLimit + 1)->create(['status' => 'active']);
+        $activeTodos = Todo::status('active')->paginate($this->paginationLimit);
         $todosIds = collect($activeTodos->items())->map->id->toArray();
 
         Livewire::test(TodoList::class)
@@ -217,7 +226,8 @@ class TodoListTest extends TestCase
 
     public function test_can_update_all_todos_status_on_current_page_to_active(): void
     {
-        $completedTodos = $this->getTodos(6, true, ['status' => 'completed']);
+        factory(Todo::class, $this->paginationLimit + 1)->create(['status' => 'completed']);
+        $completedTodos = Todo::status('completed')->paginate($this->paginationLimit);
         $todosIds = collect($completedTodos->items())->map->id->toArray();
 
         Livewire::test(TodoList::class)
@@ -237,7 +247,7 @@ class TodoListTest extends TestCase
 
     public function test_check_items_on_current_page_property_is_true_when_all_items_are_completed(): void
     {
-        $this->getTodos(10, false, ['status' => 'completed']);
+        factory(Todo::class, 10)->create(['status' => 'completed']);
 
         Livewire::test(TodoList::class)
             ->set('page', 1)
@@ -248,8 +258,8 @@ class TodoListTest extends TestCase
 
     public function test_check_items_on_current_page_property_is_false_when_not_all_items_are_completed(): void
     {
-        $this->getTodos(3, false, ['status' => 'completed']);
-        $this->getTodos(3, false, ['status' => 'active']);
+        factory(Todo::class, 3)->create(['status' => 'completed']);
+        factory(Todo::class, 3)->create(['status' => 'active']);
 
         Livewire::test(TodoList::class)
             ->set('page', 1)
@@ -260,8 +270,9 @@ class TodoListTest extends TestCase
 
     public function test_check_items_on_current_page_property_is_right_after_deletion_or_filtering(): void
     {
-        $this->getTodos(5, false, ['status' => 'completed']);
-        $activeTodo = $this->getTodos(1, false, ['status' => 'active'])->first();
+        factory(Todo::class, $this->paginationLimit)->create(['status' => 'completed']);
+        factory(Todo::class, 1)->create(['status' => 'active']);
+        $activeTodo = Todo::status('active')->first();
 
         Livewire::test(TodoList::class)
             ->set('page', 1)
@@ -280,8 +291,8 @@ class TodoListTest extends TestCase
 
     public function test_can_filter_todos(): void
     {
-        $this->getTodos(10, false, ['status' => 'completed']);
-        $this->getTodos(15, false, ['status' => 'active']);
+        factory(Todo::class, 10)->create(['status' => 'completed']);
+        factory(Todo::class, 15)->create(['status' => 'active']);
 
         Livewire::test(TodoList::class)
             ->set('filter', 'all')
@@ -303,7 +314,7 @@ class TodoListTest extends TestCase
 
     public function test_go_to_page_1_when_filtering(): void
     {
-        $this->getTodos(8);
+        factory(Todo::class, 8)->create();
 
         Livewire::test(TodoList::class)
             ->set('filter', 'all')
@@ -312,19 +323,49 @@ class TodoListTest extends TestCase
             ->assertSet('page', 1);
     }
 
-    /**
-     * Generate and get paginated todos.
-     *
-     * @param int|null $number
-     * @param bool $paginated
-     * @param array $customData
-     *
-     * @return LengthAwarePaginator|Collection
-     */
-    private function getTodos(?int $number = null, bool $paginated = false, array $customData = [])
+    public function test_can_delete_completed_todos_on_current_page(): void
     {
-        $todos = ! is_null($number) ? factory(Todo::class, $number)->create($customData) : factory(Todo::class)->create($customData);
+        factory(Todo::class, 10)->create(['status' => 'completed']);
+        $completedTodos = Todo::status('completed')->paginate($this->paginationLimit);
+        $todosIds = collect($completedTodos->items())->map->id->toArray();
 
-        return ! $paginated ? $todos : Todo::paginate($this->paginationLimit);
+        Livewire::test(TodoList::class)
+            ->set('page', 1)
+            ->assertSee('wire:click="deleteCurrentCompletedTodos(\''.json_encode($todosIds).'\', '.$completedTodos->hasMorePages().')')
+            ->assertViewHas('todos', function ($todos) {
+                return $todos->total() == 10;
+            })
+            ->call('deleteCurrentCompletedTodos', json_encode($todosIds), $completedTodos->hasMorePages())
+            ->assertViewHas('todos', function ($todos) {
+                return $todos->total() == 5;
+            });
+
+        foreach ($completedTodos->items() as $todo) {
+            $this->assertDeleted('todos', $todo->toArray());
+        }
+    }
+
+    public function test_go_to_previous_page_after_deleting_current_completed_todos_when_there_is_no_more_pages(): void
+    {
+        factory(Todo::class, 10)->create(['status' => 'completed']);
+        $completedTodos = Todo::status('completed')->paginate($this->paginationLimit, ['*'], 'page', 2);
+        $todosIds = collect($completedTodos->items())->map->id->toArray();
+
+        Livewire::test(TodoList::class)
+            ->set('page', 2)
+            ->call('deleteCurrentCompletedTodos', json_encode($todosIds))
+            ->assertSet('page', 1);
+    }
+
+    public function test_stay_on_current_page_after_deleting_current_completed_todos_when_there_is_more_pages(): void
+    {
+        factory(Todo::class, 15)->create(['status' => 'completed']);
+        $completedTodos = Todo::status('completed')->paginate($this->paginationLimit, ['*'], 'page', 2);
+        $todosIds = collect($completedTodos->items())->map->id->toArray();
+
+        Livewire::test(TodoList::class)
+            ->set('page', 2)
+            ->call('deleteCurrentCompletedTodos', json_encode($todosIds), $completedTodos->hasMorePages())
+            ->assertSet('page', 2);
     }
 }

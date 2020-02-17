@@ -22,6 +22,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Todo whereTodo($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Todo whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Todo status($status)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Todo statusNot($status)
  */
 class Todo extends Model
 {
