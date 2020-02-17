@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 /**
  * App\Models\Todo.
@@ -87,5 +88,22 @@ class Todo extends Model
     public function scopeStatusNot(Builder $query, string $status)
     {
         return $query->where('status', '!=', $status);
+    }
+
+    /**
+     * Scope a query to only include todos matching search.
+     *
+     * @param Builder $query
+     * @param string|null $search
+     *
+     * @return Builder
+     */
+    public function scopeSearch(Builder $query, ?string $search = null)
+    {
+        if (is_null($search)) {
+            return $query;
+        }
+
+        return $query->where(DB::raw('LOWER(todo)'), 'like', '%'.strtolower($search).'%');
     }
 }

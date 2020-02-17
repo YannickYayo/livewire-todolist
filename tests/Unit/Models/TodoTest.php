@@ -50,4 +50,18 @@ class TodoTest extends TestCase
         $this->assertEquals(3, Todo::statusNot('active')->get()->count());
         $this->assertEquals(2, Todo::statusNot('completed')->get()->count());
     }
+
+    public function test_check_scope_search(): void
+    {
+        factory(Todo::class)->create(['todo' => 'A new todo']);
+        factory(Todo::class)->create(['todo' => 'A todo made in second time']);
+        factory(Todo::class)->create(['todo' => 'A new todo, but the third']);
+
+        $this->assertEquals(1, Todo::search('second time')->get()->count());
+        $this->assertEquals(1, Todo::search('Second Time')->get()->count());
+        $this->assertEquals(2, Todo::search('new todo')->get()->count());
+        $this->assertEquals(3, Todo::search()->get()->count());
+        $this->assertStringContainsString('second time', Todo::search('second time')->first()->todo);
+        $this->assertStringContainsString('new todo', Todo::search('new todo')->first()->todo);
+    }
 }

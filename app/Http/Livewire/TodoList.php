@@ -25,6 +25,13 @@ class TodoList extends Component
     public $filter;
 
     /**
+     * Search todos.
+     *
+     * @var string
+     */
+    public $search;
+
+    /**
      * Current page items are checked ?
      *
      * @var bool
@@ -36,7 +43,7 @@ class TodoList extends Component
      *
      * @var array
      */
-    protected $updatesQueryString = ['filter'];
+    protected $updatesQueryString = ['filter', 'search'];
 
     /**
      * Render the component.
@@ -45,7 +52,7 @@ class TodoList extends Component
      */
     public function render(): View
     {
-        $todos = $this->filter == 'all' ? Todo::paginate(self::PAGINATION) : Todo::status($this->filter)->paginate(self::PAGINATION);
+        $todos = $this->filter == 'all' ? Todo::search($this->search)->paginate(self::PAGINATION) : Todo::search($this->search)->status($this->filter)->paginate(self::PAGINATION);
 
         if (collect($todos->items())->where('status', 'completed')->count() == self::PAGINATION) {
             $this->checkItemsOnCurrentPage = true;
@@ -71,6 +78,16 @@ class TodoList extends Component
      * @param string $value
      */
     public function updatedFilter(string $value): void
+    {
+        $this->gotoPage(1);
+    }
+
+    /**
+     * Logic when $this->search is updated.
+     *
+     * @param string $value
+     */
+    public function updatedSearch(string $value): void
     {
         $this->gotoPage(1);
     }

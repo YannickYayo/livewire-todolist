@@ -1,6 +1,8 @@
 <div>
     <h1 class="text-6xl font-bold leading-tight text-center text-white">Todo List</h1>
 
+    <input class="block w-full p-4 mx-auto mt-8 text-2xl font-normal text-gray-700 rounded-lg shadow-lg outline-none lg:w-2/3 xl:w-1/2" autocomplete="false" type="search" name="search" id="search" wire:model.debounce.700ms="search" placeholder="Search">
+    
     <section id="todolist" class="relative block w-full mx-auto mt-8 shadow-lg lg:w-2/3 xl:w-1/2">
         <div class="block w-full h-16 bg-indigo-500 rounded-t-lg"></div>
 

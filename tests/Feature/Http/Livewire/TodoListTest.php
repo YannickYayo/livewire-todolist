@@ -122,7 +122,7 @@ class TodoListTest extends TestCase
     {
         factory(Todo::class, $this->paginationLimit)->create();
         $todosCreated = Todo::paginate($this->paginationLimit);
-        $todoToDelete = $todosCreated->where('id', rand(1, $this->paginationLimit))->first();
+        $todoToDelete = $todosCreated->where('id', 1)->first();
 
         Livewire::test(TodoList::class)
             ->assertViewHas('todos', function ($todos) use ($todosCreated) {
@@ -142,7 +142,7 @@ class TodoListTest extends TestCase
     {
         factory(Todo::class, $this->paginationLimit + 1)->create();
         $todosCreated = Todo::paginate($this->paginationLimit);
-        $todoToDelete = $todosCreated->where('id', rand(1, $this->paginationLimit))->first();
+        $todoToDelete = $todosCreated->where('id', 1)->first();
         $currentPage = 2;
 
         Livewire::test(TodoList::class)
@@ -161,7 +161,7 @@ class TodoListTest extends TestCase
     {
         factory(Todo::class, $this->paginationLimit + 2)->create();
         $todosCreated = Todo::paginate($this->paginationLimit);
-        $todoToDelete = $todosCreated->where('id', rand(1, $this->paginationLimit) + 1)->first();
+        $todoToDelete = $todosCreated->where('id', 1)->first();
         $currentPage = 2;
 
         Livewire::test(TodoList::class)
@@ -367,5 +367,41 @@ class TodoListTest extends TestCase
             ->set('page', 2)
             ->call('deleteCurrentCompletedTodos', json_encode($todosIds), $completedTodos->hasMorePages())
             ->assertSet('page', 2);
+    }
+
+    public function test_can_search_todos(): void
+    {
+        factory(Todo::class)->create(['todo' => 'A new todo']);
+        factory(Todo::class)->create(['todo' => 'A todo made in second time']);
+        factory(Todo::class)->create(['todo' => 'A new todo, but the third']);
+
+        Livewire::test(TodoList::class)
+            ->assertViewHas('todos', function ($todos) {
+                return $todos->total() == 3;
+            })
+            ->set('search', 'new todo')
+            ->assertViewHas('todos', function ($todos) {
+                return $todos->total() == 2;
+            })
+            ->assertSee('A new todo')
+            ->assertSee('A new todo, but the third')
+            ->set('search', 'second time')
+            ->assertViewHas('todos', function ($todos) {
+                return $todos->total() == 1;
+            })
+            ->assertSee('A todo made in second time')
+            ->assertSee('input')
+            ->assertSee('type="search"')
+            ->assertSee('wire:model.debounce.700ms="search"');
+    }
+
+    public function test_go_to_page_1_when_searching(): void
+    {
+        factory(Todo::class, 10);
+
+        Livewire::test(TodoList::class)
+            ->set('page', 2)
+            ->set('search', 'some search')
+            ->assertSet('page', 1);
     }
 }
