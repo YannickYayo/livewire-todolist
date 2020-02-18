@@ -13,9 +13,6 @@
     <!-- Styles -->
     <link href="{{ mix('css/app.css') }}" rel="stylesheet">
     @livewireStyles
-
-    <!-- Turbolinks -->
-    <script src="{{ mix('js/turbolinks.js') }}"></script>
 </head>
 <body class="h-screen antialiased leading-none bg-gray-500">
     <div class="container z-0 px-4 mx-auto mt-4">
