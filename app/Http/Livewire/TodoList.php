@@ -11,11 +11,17 @@ class TodoList extends Component
 {
     use WithPagination;
 
-    const PAGINATION = 5;
     const TRANSITION_STATUS = [
         'active' => 'completed',
         'completed' => 'active',
     ];
+
+    /**
+     * Items per page.
+     *
+     * @var int
+     */
+    public $pagination;
 
     /**
      * Filter todo.
@@ -52,9 +58,9 @@ class TodoList extends Component
      */
     public function render(): View
     {
-        $todos = $this->filter == 'all' ? Todo::search($this->search)->paginate(self::PAGINATION) : Todo::search($this->search)->status($this->filter)->paginate(self::PAGINATION);
+        $todos = $this->filter == 'all' ? Todo::search($this->search)->paginate($this->pagination) : Todo::search($this->search)->status($this->filter)->paginate($this->pagination);
 
-        if (collect($todos->items())->where('status', 'completed')->count() == self::PAGINATION) {
+        if (collect($todos->items())->where('status', 'completed')->count() == $this->pagination) {
             $this->checkItemsOnCurrentPage = true;
         } else {
             $this->checkItemsOnCurrentPage = false;
@@ -65,9 +71,12 @@ class TodoList extends Component
 
     /**
      * Mount component.
+     *
+     * @param int $pagination
      */
-    public function mount(): void
+    public function mount(int $pagination): void
     {
+        $this->pagination = $pagination;
         $this->checkItemsOnCurrentPage = false;
         $this->filter = request()->query('filter', $this->filter) ?? 'all';
     }
@@ -108,7 +117,7 @@ class TodoList extends Component
 
         // determine on which page we must redirect
         // depends on number of items on the last page
-        if ($totalItems % self::PAGINATION == 0) {
+        if ($totalItems % $this->pagination == 0) {
             $this->gotoPage($lastPage + 1);
         } else {
             $this->gotoPage($lastPage);
