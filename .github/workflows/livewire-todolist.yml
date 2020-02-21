@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php_version: [7.2', '7.3']
+        php_version: ['7.2', '7.3']
         
     env:
       DB_CONNECTION: sqlite
