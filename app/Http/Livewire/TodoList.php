@@ -169,6 +169,12 @@ class TodoList extends Component
             ]);
     }
 
+    /**
+     * Delete completed todos on current page.
+     *
+     * @param string $todosIds
+     * @param bool|null $hasMorePages
+     */
     public function deleteCurrentCompletedTodos(string $todosIds, ?bool $hasMorePages): void
     {
         Todo::whereIn('id', json_decode($todosIds))
@@ -177,6 +183,20 @@ class TodoList extends Component
         if ($this->page != 1 && ! $hasMorePages) {
             $this->gotoPage($this->page - 1);
         }
+    }
+
+    /**
+     * Edit a todo.
+     *
+     * @param int $todoId
+     * @param string $value
+     */
+    public function editTodo(int $todoId, string $value): void
+    {
+        Todo::where('id', $todoId)
+            ->update([
+                'todo' => $value,
+            ]);
     }
 
     /**

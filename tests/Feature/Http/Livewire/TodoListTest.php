@@ -458,11 +458,34 @@ class TodoListTest extends TestCase
      */
     public function test_go_to_page_1_when_searching(int $pagination): void
     {
-        factory(Todo::class, $pagination * 2);
+        factory(Todo::class, $pagination * 2)->create();
 
         Livewire::test(TodoList::class, $pagination)
             ->set('page', 2)
             ->set('search', 'some search')
             ->assertSet('page', 1);
+    }
+
+    /**
+     * @dataProvider paginationProvider
+     */
+    public function test_can_edit_a_todo(int $pagination): void
+    {
+        factory(Todo::class)->create();
+        $todo = Todo::find(1);
+        $newValue = 'New Value';
+
+        Livewire::test(TodoList::class, $pagination)
+            ->assertSee('wire:keydown.enter="editTodo('.$todo->id.', $event.target.value)"')
+            ->assertSee('x-on:dblclick')
+            ->assertSee('x-on:click.away')
+            ->call('editTodo', $todo->id, $newValue)
+            ->assertViewHas('todos', function ($todos) use ($todo, $newValue) {
+                $newTodo = $todos->first();
+
+                return $newTodo->todo != $todo->todo && $newTodo->todo == $newValue;
+            });
+
+        $this->assertEquals($newValue, Todo::find(1)->todo);
     }
 }
