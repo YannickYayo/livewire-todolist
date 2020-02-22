@@ -9,7 +9,7 @@
 Inspired by [TodoMVC](http://todomvc.com/).
 
 I made this Todo List app to try the combo Laravel, Livewire, Alpinejs and Tailwindcss.
-You can check this repo check how things are made, a lot of Livewire features are used, and all of this was made with TDD.
+You can check this repo to see how things are made, a lot of Livewire features are used, and all of this was made with TDD.
 
 ## Tech
 
@@ -53,7 +53,7 @@ Run migrations and seeds :
 php artisan migrate --seed
 ```
 
-And finally launch your serve :
+And finally launch your server :
 
 ```bash
 php artisan serve
