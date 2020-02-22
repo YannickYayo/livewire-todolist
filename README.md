@@ -69,5 +69,4 @@ php artisan serve
 
 ## @TODO
 
--   Edit a todo
 -   Update items per page
