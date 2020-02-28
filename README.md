@@ -13,9 +13,9 @@ You can check this repo to see how things are made, a lot of Livewire features a
 
 ## Tech
 
--   Laravel 6.15.1
--   Livewire 0.7.4
--   Alpinejs 1.12.0
+-   Laravel 6.17.1
+-   Livewire 1.0.1
+-   Alpinejs 2.0.1
 -   Tailwindcss 1.2.0
 
 ## Usage
@@ -70,3 +70,4 @@ php artisan serve
 ## @TODO
 
 -   Update items per page
+-   Fix search property not updated on query string
