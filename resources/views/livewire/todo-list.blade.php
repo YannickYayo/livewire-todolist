@@ -94,31 +94,3 @@
 
     {{ $todos->links() }}
 </div>
-
-@push('scripts')
-<script type="text/javascript">
-    "use strict";
-
-    function initTodo(todo) {
-        return {
-            todo: todo.todo,
-            show_destroy: false,
-            edit: false,
-            editing: function editing(element) {
-                this.edit = true;
-                setTimeout(function() {
-                    element.focus();
-                    var value = element.value;
-                    element.value = ""; // reset value to make cursor at the end of the text
-
-                    element.value = value;
-                }, 100);
-            },
-            leaveEditing: function leaveEdit() {
-                this.edit = false;
-                this.todo = todo.todo;
-            }
-        };
-    }
-</script>
-@endpush
