@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -14,6 +15,7 @@
     <link href="{{ mix('css/app.css') }}" rel="stylesheet">
     @livewireStyles
 </head>
+
 <body class="h-screen antialiased leading-none bg-gray-500">
     <div class="container z-0 px-4 mx-auto mt-4">
         @yield('content')
@@ -21,7 +23,7 @@
 
     @livewireScripts
     @stack('scripts')
-    <script src="https://cdn.jsdelivr.net/gh/livewire/alpine-plugin@v0.1.0/dist/livewire-alpine-plugin.js"></script>
     <script src="{{ mix('js/app.js') }}"></script>
 </body>
+
 </html>

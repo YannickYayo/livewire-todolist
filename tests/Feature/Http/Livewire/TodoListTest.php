@@ -41,7 +41,7 @@ class TodoListTest extends TestCase
     {
         factory(Todo::class, $pagination + 1)->create();
 
-        Livewire::test(TodoList::class, $pagination)
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->assertViewHas('todos', function ($todos) use ($pagination) {
                 return $todos->count() == $pagination;
             });
@@ -54,7 +54,7 @@ class TodoListTest extends TestCase
     {
         $newTodo = $this->faker->realText(40);
 
-        Livewire::test(TodoList::class, $pagination)
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->assertViewHas('todos', function ($todos) {
                 return $todos->total() == 0;
             })
@@ -62,8 +62,7 @@ class TodoListTest extends TestCase
             ->assertViewHas('todos', function ($todos) {
                 return $todos->total() == 1;
             })
-            ->assertSee(e($newTodo))
-            ->assertSee('wire:keydown.enter="addTodo');
+            ->assertSee($newTodo);
 
         $this->assertEquals(1, Todo::all()->count());
     }
@@ -78,7 +77,7 @@ class TodoListTest extends TestCase
         $currentPage = 1;
         $newTodo = $this->faker->realText(40);
 
-        Livewire::test(TodoList::class, $pagination)
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('page', $currentPage)
             ->call('addTodo', $newTodo, $currentPage, $todos->total())
             ->assertSet('page', $currentPage + 1)
@@ -100,7 +99,7 @@ class TodoListTest extends TestCase
         $lastPage = intval(ceil($countTodos / $pagination));
         $newTodo = $this->faker->realText(40);
 
-        Livewire::test(TodoList::class, $pagination)
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('page', $currentPage)
             ->call('addTodo', $newTodo, $lastPage, $todos->total())
             ->assertSet('page', $lastPage)
@@ -120,7 +119,7 @@ class TodoListTest extends TestCase
         $currentPage = 1;
         $newTodo = $this->faker->realText(40);
 
-        Livewire::test(TodoList::class, $pagination)
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('page', $currentPage)
             ->call('addTodo', $newTodo, $currentPage, $todos->total())
             ->assertSet('page', $currentPage)
@@ -138,8 +137,7 @@ class TodoListTest extends TestCase
         $todosCreated = Todo::paginate($pagination);
         $todoToDelete = $todosCreated->where('id', rand(1, $pagination))->first();
 
-        Livewire::test(TodoList::class, $pagination)
-            ->assertSee('wire:click="deleteTodo('.$todoToDelete->id.', '.$pagination.')')
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->assertViewHas('todos', function ($todos) use ($todosCreated) {
                 return $todos->total() == $todosCreated->count();
             })
@@ -162,7 +160,7 @@ class TodoListTest extends TestCase
         $todoToDelete = $todosCreated->first();
         $currentPage = 2;
 
-        Livewire::test(TodoList::class, $pagination)
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('page', $currentPage)
             ->call('deleteTodo', $todoToDelete->id, 1)
             ->assertSet('page', $currentPage - 1)
@@ -184,7 +182,7 @@ class TodoListTest extends TestCase
         $todosCreated = Todo::paginate($pagination, ['*'], 'page', $currentPage);
         $todoToDelete = $todosCreated->first();
 
-        Livewire::test(TodoList::class, $pagination)
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('page', $currentPage)
             ->call('deleteTodo', $todoToDelete->id, 2)
             ->assertSet('page', $currentPage)
@@ -206,8 +204,7 @@ class TodoListTest extends TestCase
         factory(Todo::class)->create(['status' => 'completed']);
         $completedTodo = Todo::status('completed')->first();
 
-        Livewire::test(TodoList::class, $pagination)
-            ->assertSee('wire:click="updateTodoStatus('.$activeTodo->id.', \''.$activeTodo->status.'\')')
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->call('updateTodoStatus', $activeTodo->id, $activeTodo->status)
             ->assertViewHas('todos', function ($todos) use ($activeTodo) {
                 return $todos->where('id', $activeTodo->id)->first()->status == 'completed';
@@ -230,8 +227,7 @@ class TodoListTest extends TestCase
         $activeTodos = Todo::status('active')->paginate($pagination);
         $todosIds = collect($activeTodos->items())->map->id->toArray();
 
-        Livewire::test(TodoList::class, $pagination)
-            ->assertSee('wire:click="updateTodosStatusOnCurrentPage(\''.json_encode($todosIds).'\')')
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('page', 1)
             ->set('checkItemsOnCurrentPage', false)
             ->call('updateTodosStatusOnCurrentPage', json_encode($todosIds))
@@ -255,7 +251,7 @@ class TodoListTest extends TestCase
         $completedTodos = Todo::status('completed')->paginate($pagination);
         $todosIds = collect($completedTodos->items())->map->id->toArray();
 
-        Livewire::test(TodoList::class, $pagination)
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('page', 1)
             ->set('checkItemsOnCurrentPage', true)
             ->call('updateTodosStatusOnCurrentPage', json_encode($todosIds))
@@ -278,7 +274,7 @@ class TodoListTest extends TestCase
         factory(Todo::class, $pagination * 2)->create(['status' => 'completed']);
         factory(Todo::class, $pagination)->create(['status' => 'active']);
 
-        Livewire::test(TodoList::class, $pagination)
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('page', 1)
             ->assertSet('checkItemsOnCurrentPage', true)
             ->set('page', 2)
@@ -290,12 +286,26 @@ class TodoListTest extends TestCase
     /**
      * @dataProvider paginationProvider
      */
+    public function test_check_items_on_current_page_property_is_true_on_last_page_when_all_items_are_completed_and_count_items_is_not_full(int $pagination): void
+    {
+        factory(Todo::class, ($pagination * 3) - 1)->create(['status' => 'completed']);
+
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
+            ->set('page', 3)
+            ->assertSet('checkItemsOnCurrentPage', true);
+    }
+
+    /**
+     * @dataProvider paginationProvider
+     */
     public function test_check_items_on_current_page_property_is_false_when_not_all_items_are_completed(int $pagination): void
     {
         factory(Todo::class, $pagination / 2)->create(['status' => 'completed']);
         factory(Todo::class, $pagination / 2)->create(['status' => 'active']);
+        factory(Todo::class, $pagination / 2)->create(['status' => 'completed']);
+        factory(Todo::class, $pagination / 2)->create(['status' => 'active']);
 
-        Livewire::test(TodoList::class, $pagination)
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('page', 1)
             ->assertSet('checkItemsOnCurrentPage', false)
             ->set('page', 2)
@@ -311,7 +321,7 @@ class TodoListTest extends TestCase
         factory(Todo::class, 1)->create(['status' => 'active']);
         $activeTodo = Todo::status('active')->first();
 
-        Livewire::test(TodoList::class, $pagination)
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('page', 1)
             ->assertSet('checkItemsOnCurrentPage', true)
             ->set('filter', 'active')
@@ -336,7 +346,7 @@ class TodoListTest extends TestCase
         factory(Todo::class, $countCompletedTodos)->create(['status' => 'completed']);
         factory(Todo::class, $countActiveTodos)->create(['status' => 'active']);
 
-        Livewire::test(TodoList::class, $pagination)
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('filter', 'all')
             ->assertViewHas('todos', function ($todos) use ($countCompletedTodos, $countActiveTodos) {
                 return $todos->total() == ($countCompletedTodos) + ($countActiveTodos);
@@ -348,10 +358,7 @@ class TodoListTest extends TestCase
             ->set('filter', 'completed')
             ->assertViewHas('todos', function ($todos) use ($countCompletedTodos) {
                 return $todos->total() == $countCompletedTodos;
-            })
-            ->assertSee('wire:click="$set(\'filter\', \'all\')"')
-            ->assertSee('wire:click="$set(\'filter\', \'active\')"')
-            ->assertSee('wire:click="$set(\'filter\', \'completed\')"');
+            });
     }
 
     /**
@@ -361,7 +368,7 @@ class TodoListTest extends TestCase
     {
         factory(Todo::class, $pagination + 4)->create();
 
-        Livewire::test(TodoList::class, $pagination)
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('filter', 'all')
             ->set('page', 2)
             ->set('filter', 'active')
@@ -378,9 +385,8 @@ class TodoListTest extends TestCase
         $completedTodos = Todo::status('completed')->paginate($pagination);
         $todosIds = collect($completedTodos->items())->map->id->toArray();
 
-        Livewire::test(TodoList::class, $pagination)
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('page', 1)
-            ->assertSee('wire:click="deleteCurrentCompletedTodos(\''.json_encode($todosIds).'\', '.$completedTodos->hasMorePages().')')
             ->assertViewHas('todos', function ($todos) use ($countCompletedTodos) {
                 return $todos->total() == $countCompletedTodos;
             })
@@ -403,7 +409,7 @@ class TodoListTest extends TestCase
         $completedTodos = Todo::status('completed')->paginate($pagination, ['*'], 'page', 2);
         $todosIds = collect($completedTodos->items())->map->id->toArray();
 
-        Livewire::test(TodoList::class, $pagination)
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('page', 2)
             ->call('deleteCurrentCompletedTodos', json_encode($todosIds))
             ->assertSet('page', 1);
@@ -418,7 +424,7 @@ class TodoListTest extends TestCase
         $completedTodos = Todo::status('completed')->paginate($pagination, ['*'], 'page', 2);
         $todosIds = collect($completedTodos->items())->map->id->toArray();
 
-        Livewire::test(TodoList::class, $pagination)
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('page', 2)
             ->call('deleteCurrentCompletedTodos', json_encode($todosIds), $completedTodos->hasMorePages())
             ->assertSet('page', 2);
@@ -433,7 +439,7 @@ class TodoListTest extends TestCase
         factory(Todo::class)->create(['todo' => 'A todo made in second time']);
         factory(Todo::class)->create(['todo' => 'A new todo, but the third']);
 
-        Livewire::test(TodoList::class, $pagination)
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->assertViewHas('todos', function ($todos) {
                 return $todos->total() == 3;
             })
@@ -447,10 +453,7 @@ class TodoListTest extends TestCase
             ->assertViewHas('todos', function ($todos) {
                 return $todos->total() == 1;
             })
-            ->assertSee('A todo made in second time')
-            ->assertSee('input')
-            ->assertSee('type="search"')
-            ->assertSee('wire:model.debounce.700ms="search"');
+            ->assertSee('A todo made in second time');
     }
 
     /**
@@ -460,7 +463,7 @@ class TodoListTest extends TestCase
     {
         factory(Todo::class, $pagination * 2)->create();
 
-        Livewire::test(TodoList::class, $pagination)
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('page', 2)
             ->set('search', 'some search')
             ->assertSet('page', 1);
@@ -475,8 +478,7 @@ class TodoListTest extends TestCase
         $todo = Todo::find(1);
         $newValue = 'New Value';
 
-        Livewire::test(TodoList::class, $pagination)
-            ->assertSee('wire:keydown.enter="editTodo('.$todo->id.', $event.target.value)"')
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->assertSee('x-on:dblclick')
             ->assertSee('x-on:click.away')
             ->call('editTodo', $todo->id, $newValue)

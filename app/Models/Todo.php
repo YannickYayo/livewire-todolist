@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\DB;
  * @mixin \Eloquent
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Todo status($status)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Todo statusNot($status)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Todo search($search = null)
  */
 class Todo extends Model
 {

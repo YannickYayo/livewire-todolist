@@ -11,7 +11,10 @@ class TodoList extends Component
 {
     use WithPagination;
 
-    const TRANSITION_STATUS = [
+    /**
+     * Transition status.
+     */
+    private const TRANSITION_STATUS = [
         'active' => 'completed',
         'completed' => 'active',
     ];
@@ -28,14 +31,14 @@ class TodoList extends Component
      *
      * @var string
      */
-    public $filter;
+    public $filter = 'all';
 
     /**
      * Search todos.
      *
      * @var string
      */
-    public $search;
+    public $search = '';
 
     /**
      * Current page items are checked ?
@@ -49,7 +52,11 @@ class TodoList extends Component
      *
      * @var array
      */
-    protected $updatesQueryString = ['filter', 'search'];
+    protected $updatesQueryString = [
+        'filter',
+        ['search' => ['except' => '']],
+        ['page' => ['except' => 1]],
+    ];
 
     /**
      * Render the component.
@@ -60,7 +67,8 @@ class TodoList extends Component
     {
         $todos = $this->filter == 'all' ? Todo::search($this->search)->paginate($this->pagination) : Todo::search($this->search)->status($this->filter)->paginate($this->pagination);
 
-        if (collect($todos->items())->where('status', 'completed')->count() == $this->pagination) {
+        $todosCollection = collect($todos->items());
+        if ($todosCollection->where('status', 'completed')->count() == $todosCollection->count()) {
             $this->checkItemsOnCurrentPage = true;
         } else {
             $this->checkItemsOnCurrentPage = false;
@@ -78,7 +86,7 @@ class TodoList extends Component
     {
         $this->pagination = $pagination;
         $this->checkItemsOnCurrentPage = false;
-        $this->filter = request()->query('filter', $this->filter) ?? 'all';
+        $this->fill(request()->only('search', 'page', 'filter'));
     }
 
     /**

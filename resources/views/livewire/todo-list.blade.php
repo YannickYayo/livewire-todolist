@@ -53,7 +53,7 @@
 
                         <div class="flex items-center">
                             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                class="absolute right-0 w-8 h-8 mr-4 text-gray-800 transition duration-300 ease-out transform cursor-pointer hover:scale-125 hover:text-red-500"
+                                class="absolute right-0 w-8 h-8 mr-4 text-gray-800 transition duration-300 ease-out transform cursor-pointer hover:scale-110 hover:text-red-500"
                                 x-cloak x-show="show_destroy && !edit"
                                 wire:click="deleteTodo({{ $todo->id }}, {{ $todos->count() }})">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"

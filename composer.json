@@ -11,7 +11,7 @@
         "fideloper/proxy": "^4.0",
         "laravel/framework": "^6.2",
         "laravel/tinker": "^2.0",
-        "livewire/livewire": "^0.7.0",
+        "livewire/livewire": "^1.0",
         "php": "^7.2",
         "yannickyayo/laravel-preset-ttall": "^1.0"
     },
