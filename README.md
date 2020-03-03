@@ -71,3 +71,4 @@ php artisan serve
 
 -   Update items per page
 -   Fix search property not updated on query string
+-   Find a way to validate an edited todo, Livewire's validation seems to not fit
