@@ -6,6 +6,14 @@
         autocomplete="false" type="search" name="search" id="search" wire:model.debounce.700ms="search"
         placeholder="Search">
 
+    @error('newTodo')
+    <div class="block w-full p-4 mx-auto mt-8 text-red-700 bg-red-100 border-l-4 border-red-500 rounded-lg lg:w-2/3 xl:w-1/2"
+        role="alert">
+        <p class="font-bold">Error</p>
+        <p class="mt-2">{{ $message }}</p>
+    </div>
+    @enderror
+
     <section id="todolist" class="relative block w-full mx-auto mt-8 shadow-lg lg:w-2/3 xl:w-1/2">
         <div class="block w-full h-16 bg-indigo-500 rounded-t-lg"></div>
 
@@ -19,8 +27,8 @@
                     </svg>
                 </div>
 
-                <input x-on:keydown.enter="$event.target.value = ''"
-                    wire:keydown.enter="addTodo($event.target.value, {{ $todos->lastPage() }}, {{ $todos->total() }})"
+                <input wire:model="newTodo"
+                    wire:keydown.enter="addTodo({{ $todos->lastPage() }}, {{ $todos->total() }})"
                     class="flex-grow block pt-4 pb-4 pl-2 text-2xl italic font-normal text-gray-700 border-l-2 border-indigo-600 outline-none"
                     type="text" name="new-todo" id="new-todo" placeholder="Whats need to be done ?" autofocus>
             </div>

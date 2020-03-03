@@ -48,6 +48,13 @@ class TodoList extends Component
     public $checkItemsOnCurrentPage;
 
     /**
+     * New todo value.
+     *
+     * @var string
+     */
+    public $newTodo = '';
+
+    /**
      * Queries string.
      *
      * @var array
@@ -112,14 +119,22 @@ class TodoList extends Component
     /**
      * Add a new todo.
      *
-     * @param string $value
      * @param int|null $lastPage
      * @param int|null $totalItems
      */
-    public function addTodo(string $value, ?int $lastPage, ?int $totalItems): void
+    public function addTodo(?int $lastPage = null, ?int $totalItems = null): void
     {
+        $this->validate(
+            [
+                'newTodo' => 'required',
+            ],
+            [
+                'newTodo.required' => 'A new todo can\'t be empty.',
+            ]
+        );
+
         $todo = new Todo();
-        $todo->todo = $value;
+        $todo->todo = $this->newTodo;
         // status is set by default, don't need to manage it
         $todo->save();
 
@@ -130,6 +145,8 @@ class TodoList extends Component
         } else {
             $this->gotoPage($lastPage);
         }
+
+        $this->newTodo = '';
     }
 
     /**

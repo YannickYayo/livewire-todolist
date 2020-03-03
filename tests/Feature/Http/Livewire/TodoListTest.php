@@ -4,10 +4,8 @@ namespace Tests\Feature\Http\Livewire;
 
 use App\Http\Livewire\TodoList;
 use App\Models\Todo;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire;
 use Tests\TestCase;
 
@@ -27,8 +25,6 @@ class TodoListTest extends TestCase
 
     public function test_can_see_todos(): void
     {
-        factory(Todo::class, 5);
-
         $response = $this->get('/');
         $response->assertStatus(200);
         $response->assertViewIs('todo-list');
@@ -58,13 +54,36 @@ class TodoListTest extends TestCase
             ->assertViewHas('todos', function ($todos) {
                 return $todos->total() == 0;
             })
-            ->call('addTodo', $newTodo)
+            ->set('newTodo', $newTodo)
+            ->call('addTodo')
             ->assertViewHas('todos', function ($todos) {
                 return $todos->total() == 1;
             })
             ->assertSee($newTodo);
 
         $this->assertEquals(1, Todo::all()->count());
+    }
+
+    /**
+     * @dataProvider paginationProvider
+     */
+    public function test_empty_todo_trigger_an_error_when_add_a_todo(int $pagination): void
+    {
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
+            ->set('newTodo', '')
+            ->call('addTodo')
+            ->assertHasErrors(['newTodo' => 'required']);
+    }
+
+    /**
+     * @dataProvider paginationProvider
+     */
+    public function test_fill_todo_dont_trigger_an_error_when_add_a_todo(int $pagination): void
+    {
+        Livewire::test(TodoList::class, ['pagination' => $pagination])
+            ->set('newTodo', 'Test')
+            ->call('addTodo')
+            ->assertHasNoErrors('newTodo');
     }
 
     /**
@@ -79,7 +98,8 @@ class TodoListTest extends TestCase
 
         Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('page', $currentPage)
-            ->call('addTodo', $newTodo, $currentPage, $todos->total())
+            ->set('newTodo', $newTodo)
+            ->call('addTodo', $currentPage, $todos->total())
             ->assertSet('page', $currentPage + 1)
             ->assertViewHas('todos', function ($todos) {
                 return $todos->count() == 1;
@@ -101,7 +121,8 @@ class TodoListTest extends TestCase
 
         Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('page', $currentPage)
-            ->call('addTodo', $newTodo, $lastPage, $todos->total())
+            ->set('newTodo', $newTodo)
+            ->call('addTodo', $lastPage, $todos->total())
             ->assertSet('page', $lastPage)
             ->assertViewHas('todos', function ($todos) use ($itemsOnLastPage) {
                 return $todos->count() == $itemsOnLastPage + 1;
@@ -121,7 +142,8 @@ class TodoListTest extends TestCase
 
         Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('page', $currentPage)
-            ->call('addTodo', $newTodo, $currentPage, $todos->total())
+            ->set('newTodo', $newTodo)
+            ->call('addTodo', $currentPage, $todos->total())
             ->assertSet('page', $currentPage)
             ->assertViewHas('todos', function ($todos) use ($countTodos) {
                 return $todos->total() == $countTodos + 1;
