@@ -21,5 +21,7 @@ mix.js('resources/js/app.js', 'public/js')
     .sourceMaps();
 
 if (mix.inProduction()) {
-    mix.purgeCss();
+    mix.purgeCss({
+        defaultExtractor: content => content.match(/[\w-/.:]+(?<!:)/g) || []
+    });
 }
