@@ -322,10 +322,10 @@ class TodoListTest extends TestCase
      */
     public function test_check_items_on_current_page_property_is_false_when_not_all_items_are_completed(int $pagination): void
     {
-        factory(Todo::class, $pagination / 2)->create(['status' => 'completed']);
-        factory(Todo::class, $pagination / 2)->create(['status' => 'active']);
-        factory(Todo::class, $pagination / 2)->create(['status' => 'completed']);
-        factory(Todo::class, $pagination / 2)->create(['status' => 'active']);
+        factory(Todo::class, intval(round($pagination / 2)))->create(['status' => 'completed']);
+        factory(Todo::class, intval(round($pagination / 2)))->create(['status' => 'active']);
+        factory(Todo::class, intval(round($pagination / 2)))->create(['status' => 'completed']);
+        factory(Todo::class, intval(round($pagination / 2)))->create(['status' => 'active']);
 
         Livewire::test(TodoList::class, ['pagination' => $pagination])
             ->set('page', 1)

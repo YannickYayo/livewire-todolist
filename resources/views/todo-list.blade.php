@@ -3,5 +3,5 @@
 @section('title', 'Todo List')
 
 @section('content')
-@livewire('todo-list', ['pagination' => 5])
+<livewire:todo-list :pagination="5" />
 @endsection

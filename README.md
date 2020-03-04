@@ -13,7 +13,7 @@ You can check this repo to see how things are made, a lot of Livewire features a
 
 ## Tech
 
--   Laravel 6.17.1
+-   Laravel 7.0.3
 -   Livewire 1.0.1
 -   Alpinejs 2.0.1
 -   Tailwindcss 1.2.0
@@ -71,4 +71,4 @@ php artisan serve
 
 -   Update items per page
 -   Fix search property not updated on query string
--   Find a way to validate an edited todo, Livewire's validation seems to not fit
+-   Find a way to validate an edited todo, Livewire's validation seems to not fit for this case
