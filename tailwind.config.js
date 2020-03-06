@@ -9,5 +9,6 @@ module.exports = {
         extend: {}
     },
     variants: {},
+    /* eslint-disable import/no-unresolved */
     plugins: [require('@tailwindcss/ui')]
 };
