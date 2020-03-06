@@ -13,10 +13,11 @@
 
     <!-- Styles -->
     <link href="{{ mix('css/app.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
     @livewireStyles
 </head>
 
-<body class="h-screen antialiased leading-none bg-gray-500">
+<body class="h-screen antialiased leading-none bg-gray-400">
     <div class="container z-0 px-4 mx-auto mt-4">
         @yield('content')
     </div>
