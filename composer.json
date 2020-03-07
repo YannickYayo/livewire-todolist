@@ -72,6 +72,11 @@
         ],
         "format": "php-cs-fixer fix --path-mode=intersection --config=.php_cs ./",
         "test": "@php artisan test",
-        "analyse": "phpstan analyse"
+        "analyse": "phpstan analyse",
+        "all": [
+            "@format",
+            "@analyse",
+            "@test"
+        ]
     }
 }
