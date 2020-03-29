@@ -13,9 +13,9 @@ You can check this repo to see how things are made, a lot of Livewire features a
 
 ## Tech
 
--   Laravel 7.0.7
--   Livewire 1.0.2
--   Alpinejs 2.1.0
+-   Laravel 7.3.0
+-   Livewire 1.0.10
+-   Alpinejs 2.2.1
 -   Tailwindcss 1.2.0
 
 ## Usage

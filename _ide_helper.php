@@ -4,7 +4,7 @@
 
 /**
  * A helper file for Laravel 5, to provide autocomplete information to your IDE
- * Generated for Laravel 7.0.7 on 2020-03-07 16:33:53.
+ * Generated for Laravel 7.3.0 on 2020-03-29 17:11:20.
  *
  * This file should not be included in your code, only analyzed by your IDE!
  *
@@ -698,6 +698,19 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
+         * Add new prefix to list of absolute path prefixes.
+         *
+         * @param string $prefix
+         * @return \Illuminate\Foundation\Application
+         * @static
+         */
+        public static function addAbsoluteCachePathPrefix($prefix)
+        {
+            /* @var \Illuminate\Foundation\Application $instance */
+            return $instance->addAbsoluteCachePathPrefix($prefix);
+        }
+
+        /**
          * Determine if the application is currently down for maintenance.
          *
          * @return bool
@@ -1225,9 +1238,10 @@ namespace Illuminate\Support\Facades {
          * Call the given Closure / class@method and inject its dependencies.
          *
          * @param callable|string $callback
-         * @param array $parameters
+         * @param \Illuminate\Container\array<string,  mixed>  $parameters
          * @param string|null $defaultMethod
          * @return mixed
+         * @throws \InvalidArgumentException
          * @static
          */
         public static function call($callback, $parameters = [], $defaultMethod = null)
@@ -1257,6 +1271,7 @@ namespace Illuminate\Support\Facades {
          * @param string $abstract
          * @param array $parameters
          * @return mixed
+         * @throws \Illuminate\Contracts\Container\BindingResolutionException
          * @static
          */
         public static function makeWith($abstract, $parameters = [])
@@ -1285,7 +1300,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Instantiate a concrete instance of the given type.
          *
-         * @param string $concrete
+         * @param \Closure|string $concrete
          * @return mixed
          * @throws \Illuminate\Contracts\Container\BindingResolutionException
          * @static
@@ -1835,7 +1850,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Get the ID for the currently authenticated user.
          *
-         * @return int|null
+         * @return int|string|null
          * @static
          */
         public static function id()
@@ -2640,6 +2655,18 @@ namespace Illuminate\Support\Facades {
             /* @var \Illuminate\View\Compilers\BladeCompiler $instance */
             return $instance->compileEndComponentClass();
         }
+
+        /**
+         * Sanitize the given component attribute value.
+         *
+         * @param mixed $value
+         * @return mixed
+         * @static
+         */
+        public static function sanitizeComponentAttribute($value)
+        {
+            return \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($value);
+        }
     }
 
     /**
@@ -2830,7 +2857,6 @@ namespace Illuminate\Support\Facades {
          *
          * @param mixed $command
          * @return mixed
-         * @throws \RuntimeException
          * @static
          */
         public static function dispatchToQueue($command)
@@ -3620,6 +3646,35 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
+         * Get a lock instance.
+         *
+         * @param string $name
+         * @param int $seconds
+         * @param string|null $owner
+         * @return \Illuminate\Contracts\Cache\Lock
+         * @static
+         */
+        public static function lock($name, $seconds = 0, $owner = null)
+        {
+            /* @var \Illuminate\Cache\RedisStore $instance */
+            return $instance->lock($name, $seconds, $owner);
+        }
+
+        /**
+         * Restore a lock instance using the owner identifier.
+         *
+         * @param string $name
+         * @param string $owner
+         * @return \Illuminate\Contracts\Cache\Lock
+         * @static
+         */
+        public static function restoreLock($name, $owner)
+        {
+            /* @var \Illuminate\Cache\RedisStore $instance */
+            return $instance->restoreLock($name, $owner);
+        }
+
+        /**
          * Remove all items from the cache.
          *
          * @return bool
@@ -3627,32 +3682,45 @@ namespace Illuminate\Support\Facades {
          */
         public static function flush()
         {
-            /* @var \Illuminate\Cache\FileStore $instance */
+            /* @var \Illuminate\Cache\RedisStore $instance */
             return $instance->flush();
         }
 
         /**
-         * Get the Filesystem instance.
+         * Get the Redis connection instance.
          *
-         * @return \Illuminate\Filesystem\Filesystem
+         * @return \Illuminate\Redis\Connections\Connection
          * @static
          */
-        public static function getFilesystem()
+        public static function connection()
         {
-            /* @var \Illuminate\Cache\FileStore $instance */
-            return $instance->getFilesystem();
+            /* @var \Illuminate\Cache\RedisStore $instance */
+            return $instance->connection();
         }
 
         /**
-         * Get the working directory of the cache.
+         * Set the connection name to be used.
          *
-         * @return string
+         * @param string $connection
+         * @return void
          * @static
          */
-        public static function getDirectory()
+        public static function setConnection($connection)
         {
-            /* @var \Illuminate\Cache\FileStore $instance */
-            return $instance->getDirectory();
+            /* @var \Illuminate\Cache\RedisStore $instance */
+            $instance->setConnection($connection);
+        }
+
+        /**
+         * Get the Redis database instance.
+         *
+         * @return \Illuminate\Contracts\Redis\Factory
+         * @static
+         */
+        public static function getRedis()
+        {
+            /* @var \Illuminate\Cache\RedisStore $instance */
+            return $instance->getRedis();
         }
 
         /**
@@ -3663,8 +3731,21 @@ namespace Illuminate\Support\Facades {
          */
         public static function getPrefix()
         {
-            /* @var \Illuminate\Cache\FileStore $instance */
+            /* @var \Illuminate\Cache\RedisStore $instance */
             return $instance->getPrefix();
+        }
+
+        /**
+         * Set the cache key prefix.
+         *
+         * @param string $prefix
+         * @return void
+         * @static
+         */
+        public static function setPrefix($prefix)
+        {
+            /* @var \Illuminate\Cache\RedisStore $instance */
+            $instance->setPrefix($prefix);
         }
     }
 
@@ -10868,7 +10949,7 @@ namespace Illuminate\Support\Facades {
          * Create a new redirect response to a named route.
          *
          * @param string $route
-         * @param array $parameters
+         * @param mixed $parameters
          * @param int $status
          * @param array $headers
          * @return \Illuminate\Http\RedirectResponse
@@ -10884,7 +10965,7 @@ namespace Illuminate\Support\Facades {
          * Create a new redirect response to a controller action.
          *
          * @param string $action
-         * @param array $parameters
+         * @param mixed $parameters
          * @param int $status
          * @param array $headers
          * @return \Illuminate\Http\RedirectResponse
@@ -15838,6 +15919,9 @@ namespace Facade\Ignition\Facades {
 
 namespace Livewire {
 
+    /**
+     * @see \Livewire\LivewireManager
+     */
     class Livewire
     {
         /**

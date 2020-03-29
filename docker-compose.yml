@@ -1,0 +1,69 @@
+version: '3.7'
+services:
+    web:
+        build:
+            context: ./docker/php
+            args:
+                USER_ID: ${USER_ID}
+                GROUP_ID: ${GROUP_ID}
+        ports:
+            - 8080:80
+        sysctls:
+            - net.ipv4.ip_unprivileged_port_start=0
+        volumes:
+            - .:/var/www/html
+            - ./docker/apache/php.ini:/usr/local/etc/php/conf.d/30-custom.ini
+            - ./docker/apache/sites:/etc/apache2/sites-enabled
+        networks:
+            - mynetwork
+        depends_on:
+            - db
+            - maildev
+            - redis
+    db:
+        image: mysql:5.7
+        restart: always
+        environment:
+            MYSQL_DATABASE: 'livewire_todolist'
+            MYSQL_USER: 'yayo'
+            MYSQL_PASSWORD: 'fR8//@xY'
+            MYSQL_ROOT_PASSWORD: 'fR8//@xY'
+        ports:
+            - '3316:3306'
+        expose:
+            - '3306'
+        volumes:
+            - db-data:/var/lib/mysql
+            - ./livewire-todolist.sql:/var/www/html/livewire_todolist.sql
+        networks:
+            - mynetwork
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        ports:
+            - '8181:80'
+        restart: always
+        environment:
+            - PMA_ARBITRARY=1
+        depends_on:
+            - db
+        networks:
+            - mynetwork
+    maildev:
+        image: maildev/maildev
+        ports:
+            - '1080:80'
+        networks:
+            - mynetwork
+    redis:
+        image: redis:5.0.5-stretch
+        ports:
+            - '6389:6379'
+        networks:
+            - mynetwork
+
+networks:
+    mynetwork:
+
+volumes:
+    db-data:
+        driver: local
